@@ -11,55 +11,44 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-	dlistint_t *saved_head = NULL;
-	dlistint_t *aux;
-	unsigned int p, cont;
+	dlistint_t *saved_head;
+	dlistint_t *tmp;
+	unsigned int p = 0;
 
-	aux = *head;
 	if (*head == NULL)
-	{
 		return (-1);
-	}
-	cont = dlistint_len(*head);
-	if (index >= cont)
+	saved_head = *head;
+	while (p < index && *head != NULL)
 	{
-		return (-1);
-	}
-	if (index == 0 && cont > 0)
-	{
-		saved_head = *head;
 		*head = (*head)->next;
-		free(saved_head);
-		return (1);
-	}
-	if (cont != 1)
-		(*head)->prev = NULL;
-	p = 0;
-	while (p < index)
-	{
-		aux = aux->next;
 		p++;
 	}
-	aux->prev->next = aux->next;
-	if (index != cont - 1)
+	if (p != index)
 	{
-		aux->next->prev = aux->prev;
+		*head = saved_head;
+		return (-1);
 	}
-	free(aux);
+	if (index == 0)
+	{
+		tmp = (*head)->next;
+		free(*head);
+		*head = tmp;
+		if (tmp != NULL)
+		{
+			tmp->prev = NULL;
+		}
+	}
+	else
+	{
+		if ((*head)->next)
+		{
+			(*head)->prev->next = (*head)->next;
+			(*head)->next->prev = (*head)->prev;
+		}
+		else
+			(*head)->prev->next = NULL;
+		free(*head);
+		*head = saved_head;
+	}
 	return (1);
-}
-
-/**
- * dlistint_len - prints number elements of a dlist_t listint.
- * @h: pointer to head
- * Return: i
- */
-size_t dlistint_len(const dlistint_t *h)
-{
-	int i;
-	const dlistint_t *aux = h;
-
-	for (i = 0; aux != NULL; i++)
-		aux = aux->next;
-	return (i);
 }
